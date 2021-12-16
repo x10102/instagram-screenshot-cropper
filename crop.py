@@ -4,6 +4,8 @@ import argparse
 from PIL import Image, UnidentifiedImageError
 
 formats = ["jpg", "jpeg", "bmp", "png"]
+# TODO: JPEG compression makes the colors near the image slightly off and leaves black/white bars visible in the cropped version. I cut 10 pixels off the top and bottom as a temporary fix.
+margin = 10
 
 
 def crop_screenshot(filename: str, dark=False):
@@ -35,7 +37,7 @@ def crop_screenshot(filename: str, dark=False):
     for y in range(center_line, 0, -1):
 
         if len([1 for x in range(width) if screen.getpixel((x, y)) == color]) == width:
-            cropped = screen.crop((0, y, width, height))
+            cropped = screen.crop((0, y+margin, width, height))
             break
         elif y == 1:
             if args.mode == "single":
@@ -47,7 +49,7 @@ def crop_screenshot(filename: str, dark=False):
 
     for y in range(1, height):
         if len([1 for x in range(width) if cropped.getpixel((x, y)) == color]) == width:
-            cropped = cropped.crop((0, 0, width, y))
+            cropped = cropped.crop((0, 0, width, y-margin))
             print("Saving file as " + filename_original + "_cropped" + extension)
             try:
                 cropped.save(filename_original + "_cropped" + extension)
