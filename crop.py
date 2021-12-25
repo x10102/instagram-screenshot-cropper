@@ -4,8 +4,23 @@ import argparse
 from PIL import Image, UnidentifiedImageError
 
 formats = ["jpg", "jpeg", "bmp", "png"]
-# TODO: JPEG compression makes the colors near the image slightly off and leaves black/white bars visible in the cropped version. I cut 10 pixels off the top and bottom as a temporary fix.
-margin = 10
+
+# JPEG compression makes the lines around the image blurry sometimes, the color limits are slightly off to account for that
+white_limit = (250, 250, 250)
+black_limit = (5, 5, 5)
+
+
+def pixel_compare(pixel, dark):
+    if dark:
+        if pixel[0] > black_limit[0] or pixel[1] > black_limit[1] or pixel[2] > black_limit[2]:
+            return False
+        else:
+            return True
+    else:
+        if pixel[0] < white_limit[0] or pixel[1] < white_limit[1] or pixel[2] < white_limit[2]:
+            return False
+        else:
+            return True
 
 
 def crop_screenshot(filename: str, dark=False):
@@ -15,7 +30,7 @@ def crop_screenshot(filename: str, dark=False):
     except UnidentifiedImageError:
         if args.mode == "single":
             print("Error: The image file is either corrupted or in an unknown format.")
-            exit(-1)
+            return
         else:
             print("Error: Image file is either corrupted or in an unknown format. Skipping {}...".format(filename))
             return
@@ -32,13 +47,12 @@ def crop_screenshot(filename: str, dark=False):
     cropped = None
     filename_original, extension = os.path.splitext(filename)
 
-    color = (0, 0, 0) if dark else (255, 255, 255)
-
     for y in range(center_line, 0, -1):
 
-        if len([1 for x in range(width) if screen.getpixel((x, y)) == color]) == width:
-            cropped = screen.crop((0, y+margin, width, height))
+        if len([1 for x in range(width) if pixel_compare(screen.getpixel((x, y)), dark)]) == width:     # check for a line of dark / light pixels
+            cropped = screen.crop((0, y+2, width, height))
             break
+
         elif y == 1:
             if args.mode == "single":
                 print("Unable to find area to crop. Check your theme option.")
@@ -47,9 +61,13 @@ def crop_screenshot(filename: str, dark=False):
                 print("Unable to find area to crop. Skipping {}...".format(filename))
                 return
 
-    for y in range(1, height):
-        if len([1 for x in range(width) if cropped.getpixel((x, y)) == color]) == width:
-            cropped = cropped.crop((0, 0, width, y-margin))
+    center_old = center_line
+    center_line = cropped.size[1] // 2     # find the new center line
+    center_line = center_line - (center_old - center_line)  # and flip it around the old one (It works don't question it [I came up with this at 1 AM])
+
+    for y in range(center_line, height, 1):
+        if len([1 for x in range(width) if pixel_compare(cropped.getpixel((x, y)), dark)]) == width:
+            cropped = cropped.crop((0, 0, width, y-2))
             print("Saving file as " + filename_original + "_cropped" + extension)
             try:
                 cropped.save(filename_original + "_cropped" + extension)
