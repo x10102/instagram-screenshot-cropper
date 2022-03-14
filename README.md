@@ -6,10 +6,10 @@ Based on [zzrafz' automatic screenshot cropper](https://github.com/zzrafz/automa
 # Examples
 
 ## Original
-<img src="https://github.com/x10102/instagram-screenshot-cropper/blob/master/Examples/test_dark.jpg?raw=true" width="250">
+<img src="https://github.com/x10102/instagram-screenshot-cropper/blob/master/Examples/test_dark.jpg?raw=true" width="250"> <img src="https://github.com/x10102/instagram-screenshot-cropper/blob/master/Examples/test_light.jpg?raw=true" width="250">
 
 ## Cropped
-<img src="https://github.com/x10102/instagram-screenshot-cropper/blob/master/Examples/test_dark_cropped.jpg" width="250">
+<img src="https://github.com/x10102/instagram-screenshot-cropper/blob/master/Examples/test_dark_cropped.jpg" width="250"> <img src="https://github.com/x10102/instagram-screenshot-cropper/blob/master/Examples/test_light_cropped.jpg" width="250">
 
 # Requirements
 
